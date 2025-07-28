@@ -86,12 +86,9 @@
 </style>
 </head>
 <body>
-  <h1>Happy Birthday! <br><pre>   🎉🎂🎈</pre></h1>
-  <div id="heart">
-    <div class="heart-shape"></div>
-    <div class="heart-shape right"></div>
-  </div>
-  <canvas id="fireworks"></canvas>
+  <h1><pre>Happy   Birthday! <br>   🎉🎂🎈</pre></h1>
+  <div style="height: 450px;"></div>
+  <canvas id="fireworks" style="margin-top: 40px;"></canvas>
 
 <script>
   const canvas = document.getElementById('fireworks');
@@ -108,6 +105,54 @@
   }
   window.addEventListener('resize', resize);
   resize();
+
+  // Heart shape points for drawing lines
+  const heartPoints = [];
+  const heartCenter = { x: cw / 2, y: ch / 2 };
+
+  // Generate heart shape points using parametric equations
+  function generateHeartPoints() {
+    heartPoints.length = 0;
+    for (let t = 0; t < Math.PI * 2; t += 0.1) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      heartPoints.push({ x: heartCenter.x + x * 15, y: heartCenter.y - y * 15 });
+    }
+  }
+
+  // Line class for animating lines from center to heart points
+  class Line {
+    constructor(target) {
+      this.start = { x: heartCenter.x, y: heartCenter.y + 50 };
+      this.end = { x: heartCenter.x, y: heartCenter.y + 50 };
+      this.target = target;
+      this.progress = 0;
+      this.speed = 0.01 + Math.random() * 0.001;
+    }
+    update() {
+      this.progress += this.speed;
+      if (this.progress > 1) this.progress = 1;
+      this.end.x = this.start.x + (this.target.x - this.start.x) * this.progress;
+      this.end.y = this.start.y + (this.target.y - this.start.y) * this.progress;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.moveTo(this.start.x, this.start.y);
+      ctx.lineTo(this.end.x, this.end.y);
+      ctx.strokeStyle = '#ff4081';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    isComplete() {
+      return this.progress >= 1;
+    }
+  }
+
+  let lines = [];
+
+  function createLines() {
+    lines = heartPoints.map(point => new Line(point));
+  }
 
   class Firework {
     constructor(sx, sy, tx, ty) {
@@ -236,6 +281,12 @@
       particles[j].update(j);
     }
 
+    // Draw heart lines
+    lines.forEach(line => {
+      line.update();
+      line.draw();
+    });
+
     if(fireworks.length < 5) {
       let startX = cw / 2;
       let startY = ch;
@@ -245,7 +296,13 @@
     }
   }
 
-  window.onload = loop;
+  function init() {
+    generateHeartPoints();
+    createLines();
+    loop();
+  }
+
+  window.onload = init;
 </script>
 </body>
 </html>
