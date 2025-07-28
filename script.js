@@ -12,7 +12,7 @@ function showSlides() {
     if(slideIndex >= slides.length) {
         slideIndex = 0;
     }
-    setTimeout(showSlides, 3000); // Change image every 3 seconds
+    setTimeout(showSlides, 1500); // Change image every 3 seconds
 }
 
 window.onload = function() {
